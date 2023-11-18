@@ -1,7 +1,7 @@
 import { NextResponse, NextRequest } from 'next/server';
 
 const validAddresses = new Set(
-  process.env.VALID_ADDRESSES.split(',').map((address) => address.trim())
+  process.env.VALID_ADDRESSES!.split(',').map((address) => address.trim())
 );
 
 export function middleware(req: NextRequest) {
