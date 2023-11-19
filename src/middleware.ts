@@ -1,20 +1,30 @@
 import { NextResponse, NextRequest } from 'next/server';
 
-const validAddresses = new Set(
-  process.env.VALID_ADDRESSES!.split(',').map((address) => address.trim())
-);
+const validAddresses = new Set();
+if (process.env.VALID_IP_ADDRESSES) {
+  process.env.VALID_IP_ADDRESSES!.split(',').forEach((address) => {
+    validAddresses.add(address.trim());
+  })
+}
 
 export function middleware(req: NextRequest) {
   const res = NextResponse.next();
 
+  // Restrict access by IP address
   let ip: string = req.ip ?? req.headers.get('x-real-ip') ?? '';
   // with CDN or LB
   if (!ip && req.headers.get('x-forwarded-for')) {
     ip = req.headers.get('x-forwarded-for')?.split(',')[0] ?? '';
   }
-  const tmp = `request.ip = ${req.ip}, request.nextUrl.host = ${req.nextUrl.host}`;
+
   if (!validAddresses.has(ip)) {
-    console.info(`401 ${tmp}`);
+    const tmp = {
+      status: 403,
+      url: req.url,
+      host: req.nextUrl.host,
+    };
+    console.log(JSON.stringify(tmp));
+
     return new NextResponse(null, { status: 401 });
   }
 
