@@ -36,11 +36,6 @@ jobs:
       #   run: npm run generate
         # - name: Zip artifact for upload
         #  run: cd out && zip ../out.zip . -r
-      - name: copy kuroco_front.json
-        uses: actions/checkout@master
-        with:
-          source: "kuroco_front.json"
-          target: "out/kuroco_front.json"
       - name: Archive Production Artifact
         uses: actions/upload-artifact@v3
         with:
@@ -76,12 +71,6 @@ jobs:
       #   run: npm run generate
         # - name: Zip artifact for upload
         #  run: cd out && zip ../out.zip . -r
-      - name: copy kuroco_front.json
-        uses: actions/checkout@master
-        with:
-          source: "kuroco_front.json"
-          target: "out/kuroco_front.json"
-
       - name: Archive Production Artifact
         uses: actions/upload-artifact@v3
         with:
