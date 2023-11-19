@@ -35,12 +35,12 @@ jobs:
       - name: Generate
         run: npm run generate
         # - name: Zip artifact for upload
-        #  run: cd dist && zip ../dist.zip . -r
+        #  run: cd out && zip ../out.zip . -r
       - name: Archive Production Artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.get_branch.outputs.sha }}-${{ github.run_id }}
-          path: dist
+          path: out
           retention-days: 7
       - name: Wait for Artifact download
         run: sleep 15
@@ -70,12 +70,12 @@ jobs:
       - name: Generate
         run: npm run generate
         # - name: Zip artifact for upload
-        #  run: cd dist && zip ../dist.zip . -r
+        #  run: cd out && zip ../out.zip . -r
       - name: Archive Production Artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}-${{ github.run_id }}
-          path: dist
+          path: out
           retention-days: 7
       - name: Webhook
         uses: diverta/workflow-webhook@v2
