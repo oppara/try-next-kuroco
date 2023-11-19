@@ -3,10 +3,10 @@ on:
   push:
     branches:
       - main
-      - kuroco
   issue_comment:
     types: [created, edited]
   workflow_dispatch:
+
 jobs:
   # for Pull Request (exclude merged)
   pullreq_build:
@@ -20,36 +20,50 @@ jobs:
           PR=$(curl -H "X-Kuroco-Auth: token 264b69a25b6f725e9031ce4f0118b8ee" https://oppara.g.kuroco.app/direct/menu/github/?pr=${{ github.event.issue.pull_request.url }})
           echo "branch=$(echo $PR | jq -r '.ref')" >> $GITHUB_OUTPUT
           echo "sha=$(echo $PR | jq -r '.sha')" >> $GITHUB_OUTPUT
-      - name: Checkout Repo
+      - name: checkout repo
         uses: actions/checkout@v3
         with:
           ref: ${{ steps.get_branch.outputs.branch }}
-      - name: Use Node.js
+
+      - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-      - name: Install dependencies
+
+      - name: npm clean install
         run: npm ci
-      - name: Build
+
+      - name: build
         run: npm run build
-      # - name: Generate
-      #   run: npm run generate
-        # - name: Zip artifact for upload
-        #  run: cd out && zip ../out.zip . -r
-      - name: Archive Production Artifact
+
+      - name: copy kuroco_front.json
+        run: cp kuroco_front.json out/.
+
+      - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.get_branch.outputs.sha }}-${{ github.run_id }}
           path: out
           retention-days: 7
-      - name: Wait for Artifact download
+
+      - name: wait for artifact download
         run: sleep 15
-      - name: Webhook
+
+      - name: kuroco webhook
         uses: diverta/workflow-webhook@v2
         env:
           webhook_url: "https://oppara.g.kuroco.app/direct/menu/github/"
           webhook_secret: "264b69a25b6f725e9031ce4f0118b8ee"
-          data: '{"single_zip":"0","domain":"oppara.g.kuroco-front.app","pr":"${{ github.event.issue.pull_request.url }}",  "repository":"${{ github.repository }}", "run_id":"${{ github.run_id }}", "hash":"${{ steps.get_branch.outputs.sha }}"}'
+          data: |
+            {
+              "single_zip":"0",
+              "domain":"oppara.g.kuroco-front.app",
+              "pr":"${{ github.event.issue.pull_request.url }}",
+              "repository":"${{ github.repository }}",
+              "run_id":"${{ github.run_id }}",
+              "hash":"${{ steps.get_branch.outputs.sha }}"
+            }
+          # data: '{"single_zip":"0","domain":"oppara.g.kuroco-front.app","pr":"${{ github.event.issue.pull_request.url }}",  "repository":"${{ github.repository }}", "run_id":"${{ github.run_id }}", "hash":"${{ steps.get_branch.outputs.sha }}"}'
 
   #for Push
   pushed_build:
@@ -57,30 +71,41 @@ jobs:
     if: (github.repository == 'oppara/try-next-kuroco' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch'))
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repo
+      - name: checkout repo
         uses: actions/checkout@v3
-      - name: Use Node.js
+
+      - name: setup node
         uses: actions/setup-node@v3
         with:
           node-version: '20.x'
-      - name: Install dependencies
+
+      - name: npm clean install
         run: npm ci
-      - name: Build
+
+      - name: build
         run: npm run build
-      # - name: Generate
-      #   run: npm run generate
-        # - name: Zip artifact for upload
-        #  run: cd out && zip ../out.zip . -r
-      - name: Archive Production Artifact
+
+      - name: copy kuroco_front.json
+        run: cp kuroco_front.json out/.
+
+      - name: upload artifact
         uses: actions/upload-artifact@v3
         with:
           name: ${{ github.sha }}-${{ github.run_id }}
           path: out
           retention-days: 7
-      - name: Webhook
+
+      - name: kuroco webhook
         uses: diverta/workflow-webhook@v2
         env:
           webhook_url: "https://oppara.g.kuroco.app/direct/menu/github/"
           webhook_secret: "264b69a25b6f725e9031ce4f0118b8ee"
-          data: '{"single_zip":"0","domain":"oppara.g.kuroco-front.app", "repository":"${{ github.repository }}", "run_id":"${{ github.run_id }}", "hash":"${{ github.sha }}"}'
+          data: |
+            {
+              "single_zip":"0",
+              "domain":"oppara.g.kuroco-front.app",
+              "repository":"${{ github.repository }}",
+              "run_id":"${{ github.run_id }}",
+              "hash":"${{ github.sha }}"
+            }
 

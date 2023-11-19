@@ -1,0 +1,1 @@
+{"sdk_key":"0c78c3d15e5daf4e760e0f0c10531d25","api_url":"https://oppara.g.kuroco.app","management_url":"https://oppara.g.kuroco-mng.app","gcp":{"firebaseConfig":null},"api_config":{"security":"dynamic_token","ip_whitelist":[""]}}

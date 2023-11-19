@@ -6,7 +6,9 @@
         }
       ],
     "redirects": [],
-    "basic": [],
+    "basic": [
+      "foo:bar"
+    ],
     "ip_restrictions": [
       "106.72.201.66"
     ]
